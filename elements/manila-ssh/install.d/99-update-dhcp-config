@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+DHCP_TIMEOUT=${DIB_DHCP_TIMEOUT:-300}
+
+sudo sed -i "s/timeout .*/timeout ${DIB_DHCP_TIMEOUT};/" \
+    /etc/dhcp/dhclient.conf
+sudo cp /usr/lib/systemd/system/dhcp-interface@.service \
+    /etc/systemd/system/dhcp-interface@.service
+sudo sed -i "s/TimeoutStartSec=.*/TimeoutStartSec=${DIB_DHCP_TIMEOUT}s/" \
+    /etc/systemd/system/dhcp-interface@.service
